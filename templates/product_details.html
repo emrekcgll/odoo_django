@@ -1,0 +1,21 @@
+{% extends '_layout.html' %}
+
+{% block content %} 
+    <div class="container py-5">
+            <h3>ID: <small>{{product_details.id}}</small></h3>
+            <h3>Brand: <small>{{product_details.brand_id.1}}</small></h3>
+            <h3>Part No: <small>{{product_details.name}}</small></h3>
+            <img src="{{img}}">
+            <div>
+                <form method="post">{% csrf_token %}
+                    <input type="text" name="product" class="form-control mt-2" placeholder="Part No">
+                    <input type="text" name="country" class="form-control mt-2" placeholder="Country">
+                    <input type="text" name="city" class="form-control mt-2" placeholder="City">
+                    <input type="text" name="address" class="form-control mt-2" placeholder="Address">
+                    <input type="text" name="message" class="form-control mt-2" placeholder="Message">
+                    <button type="submit" class="btn btn-sm btn-primary mt-2">Send Request</button>
+                </form>
+            </div>
+
+    </div>
+{% endblock %}

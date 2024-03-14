@@ -1,0 +1,95 @@
+{% extends '_layout.html' %}
+{% block content %}
+<div class="container py-5">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>IMG</th>
+                <th>ID</th>
+                <th>Brand</th>
+                <th>Part No</th>
+            </tr>
+        </thead>
+        <tbody id="product-list"></tbody>
+    </table>
+    <ul id="pagination" class="pagination-sm"></ul>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    $(document).ready(function () {
+        var currentPage = 1;
+
+        function fetchProducts(page) {
+            $.ajax({
+                url: "/product_list_ajax/",
+                data: { page: page },
+                dataType: "json",
+                success: function (response) {
+                    var productList = response.products_data_list;
+                    var html = "";
+                    $.each(productList, function (index, product) {
+                        html += `
+                            <tr type="button" onclick="window.location.href = '/product/${product.id}/';">
+                                <td>${product.id}</td>
+                                <td>${product.brand_id[1]}</td>
+                                <td>${product.name}</td>
+                            </tr>`;
+                    });
+                    $("#product-list").html(html);
+
+                    var totalPages = response.total_pages;
+                    var paginationRange = 2;
+                    var pagination = "";
+
+                    if (page > 1) {
+                        pagination += `<button id="prevButton">Previous</button>`;
+                    }
+                    
+                    // Önceki sayfaları ekleyin
+                    for (var i = Math.max(1, page - paginationRange); i < page; i++) {
+                        pagination += `<button class="pageNumber">${i}</button>`;
+                    }
+
+                    // Mevcut sayfayı ekleyin
+                    pagination += `<button class="pageNumber active">${page}</button>`; 
+                    
+                    // Sonraki sayfaları ekleyin
+                    for (var i = page + 1; i <= Math.min(totalPages, page + paginationRange); i++) {
+                        pagination += `<button class="pageNumber">${i}</button>`;
+                    }
+
+                    if (page < totalPages) {
+                        pagination += `<button id="nextButton">Next</button>`;
+                    }
+
+                    $("#pagination").html(pagination);
+
+                    // Sayfa numaralarına click event listener ekleme
+                    $(".pageNumber").on("click", function() {
+                        var pageNumber = parseInt($(this).text());
+                        currentPage = pageNumber;
+                        fetchProducts(currentPage);
+                    });
+
+                    $("#prevButton").on("click", function () {
+                        if (currentPage > 1) {
+                            currentPage--;
+                            fetchProducts(currentPage);
+                        }
+                    });
+
+                    $("#nextButton").on("click", function () {
+                        if (currentPage < totalPages) {
+                            currentPage++;
+                            fetchProducts(currentPage);
+                        }
+                    });
+                }
+            });
+        }
+        fetchProducts(currentPage);
+    });
+</script>
+{% endblock %}
